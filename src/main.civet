@@ -1,0 +1,29 @@
+import "dotenv/config"
+{ serve } from '@hono/node-server'
+{ Hono } from 'hono'
+{ logger } from 'hono/logger'
+{ Logger } from "term-logger"
+{ user } from './user.civet'
+// @ts-ignore
+{ PrismoClient } from "prismoo"
+type { Tables } from "./types.ts"
+
+
+// Setup the database connection
+export db := new PrismoClient<Tables> url: process.env.TURSO_URL, token: process.env.TURSO_TOKEN
+db.generateTypes writeToSQLFile: false
+
+app := new Hono()
+PORT := Number process.env.PORT || 3000;
+
+app.use logger()
+
+app.basePath "/api"
+  .route "/user", user
+
+Logger.info `Server started on port ${PORT}`
+
+serve({
+  port: PORT,
+  fetch: app.fetch
+})

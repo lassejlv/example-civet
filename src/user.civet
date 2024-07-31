@@ -1,0 +1,14 @@
+{ Hono } from "hono"
+{ z } from "zod"
+{ db } from "./main.civet"
+type { users } from "./types.ts"
+
+export user := new Hono()
+
+user.get "/", async (c) =>
+
+  users := await db.findMany<users> table: "users", limit: 10
+  return c.json(users)
+
+
+
